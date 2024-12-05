@@ -1,7 +1,7 @@
-Scaling [--solutionname--] With Kubernetes
+Scaling [cloud-7042] With Kubernetes
 ===========================
 
-Generated On: --datetime-- UTC
+Generated On: 2024-12-05 16:48:58 UTC
 
 You can scale your solution with Kubernetes.  To do so, will will need to apply the following YAML files to your Kubernetes cluster.
 
@@ -33,13 +33,13 @@ You can scale your solution with Kubernetes.  To do so, will will need to apply 
    sudo systemctl restart docker
 
 
-Based on your TML solution [--solutionname--] - if you want to scale your application with Kubernetes - you will need to apply the following YAML files.
+Based on your TML solution [cloud-7042] - if you want to scale your application with Kubernetes - you will need to apply the following YAML files.
 
 .. list-table::
 
    * - **YML File**
      - **Description**
-   * - :ref:`--solutionnamefile--`
+   * - :ref:`cloud-7042.yml`
      - This is your main solution YAML file.  
  
        It MUST be applied to your Kubernetes cluster.
@@ -72,13 +72,13 @@ kubectl Create command
 
 .. code-block:: YAML
 
-   --kubectl--
+   kubectl create -f mysql-storage.yml -f mysql-db-deployment.yml -f qdrant.yml -f privategpt.yml -f cloud-7042.yml
 
---solutionnamefile--
+cloud-7042.yml
 ------------------------
 
 .. important::
-   Copy and Paste this YAML file: --solutionnamefile-- - and save it locally.
+   Copy and Paste this YAML file: cloud-7042.yml - and save it locally.
 
 .. attention::
 
@@ -98,8 +98,110 @@ kubectl Create command
 
 .. code-block:: YAML
 
-   ################# --solutionnamefile--
-   --solutionnamecode--
+   ################# cloud-7042.yml
+   
+     apiVersion: apps/v1
+     kind: Deployment
+     metadata:
+       name: cloud-7042
+     spec:
+       selector:
+         matchLabels:
+           app: cloud-7042
+       replicas: 3 # tells deployment to run 1 pods matching the template
+       template:
+         metadata:
+           labels:
+             app: cloud-7042
+         spec:
+           containers:
+           - name: cloud-7042
+             image: hardikdagar0207/cloud-7042-amd64:latest
+             volumeMounts:
+             - name: dockerpath
+               mountPath: /var/run/docker.sock
+             ports:
+             - containerPort: 8883
+             - containerPort: 51637
+             - containerPort: 33743
+             - containerPort: 36775
+             env:
+             - name: TSS
+               value: '0'
+             - name: SOLUTIONNAME
+               value: 'cloud-7042'
+             - name: SOLUTIONDAG
+               value: 'solution_preprocessing_ai_mqtt_dag-cloud-7042'
+             - name: GITUSERNAME
+               value: 'hardikdagar7'
+             - name: GITREPOURL
+               value: 'https://github.com/hardikdagar7/raspberrypi.git'
+             - name: SOLUTIONEXTERNALPORT
+               value: '36775'
+             - name: CHIP
+               value: 'amd64'
+             - name: SOLUTIONAIRFLOWPORT
+               value: '51637'
+             - name: SOLUTIONVIPERVIZPORT
+               value: '33743'
+             - name: DOCKERUSERNAME
+               value: 'hardikdagar0207'
+             - name: CLIENTPORT
+               value: '8883'
+             - name: EXTERNALPORT
+               value: '42615'
+             - name: KAFKACLOUDUSERNAME
+               value: ''
+             - name: VIPERVIZPORT
+               value: '9005'
+             - name: MQTTUSERNAME
+               value: 'hivemq.webclient.1725974242180'
+             - name: AIRFLOWPORT
+               value: '9000'
+             - name: GITPASSWORD
+               value: '<ENTER GITHUB PASSWORD>'
+             - name: KAFKACLOUDPASSWORD
+               value: '<Enter API secret>'
+             - name: MQTTPASSWORD
+               value: '<ENTER MQTT PASSWORD>'
+             - name: READTHEDOCS
+               value: '<ENTER READTHEDOCS TOKEN>'
+             - name: qip 
+               value: 'privategpt-service' # This is private GPT service in kubernetes
+             - name: KUBE
+               value: '1'
+           volumes: 
+           - name: dockerpath
+             hostPath:
+               path: /var/run/docker.sock
+   ---
+     apiVersion: v1
+     kind: Service
+     metadata:
+       name: cloud-7042-service
+       labels:
+         app: cloud-7042-service
+     spec:
+       type: NodePort #Exposes the service as a node ports
+       ports:
+       - port: 8883
+         name: p1
+         protocol: TCP
+         targetPort: 8883
+       - port: 51637
+         name: p2
+         protocol: TCP
+         targetPort: 51637
+       - port: 33743
+         name: p3
+         protocol: TCP
+         targetPort: 33743
+       - port: 36775
+         name: p4
+         protocol: TCP
+         targetPort: 36775
+       selector:
+         app: cloud-7042
 
 .. tip::
 
@@ -356,13 +458,13 @@ To visualize the dashboard you need to forward ports to your solution **deployme
 
 .. code-block::
 
-   --kube-portforward--
+   kubectl port-forward deployment/cloud-7042 33743:33743
 
 After you forward the ports then copy/paste the viusalization URL below and run your dashboard.
 
 .. code-block::
 
-   --visualizationurl--
+   http://localhost:33743/tml-cisco-network-privategpt-monitor.html?topic=cisco-network-preprocess,cisco-network-privategpt&offset=-1&groupid=&rollbackoffset=400&topictype=prediction&append=0&secure=1
 
 Kubernetes Pod Access Commands
 ---------------------
